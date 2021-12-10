@@ -8,27 +8,43 @@ import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        //TODO: 018 - fazer o handle do clique do botão
+        button_load_data.setOnClickListener {
+            launchAstrosTask()
+        }
     }
-
-
-    //TODO: 013 - Criar função para exibir os dados carregados
-
-
-    //TODO: 014 - Criar função para exibir a ProgressBar
-
-
-    //TODO: 015 - Criar função para esconder a ProgressBar
-
-
-    //TODO: 017 - Criar função para lançar a Task
-
-
-    //TODO: 016 - Criar classe interna para rodar a tarefa assincrona
+    fun showData(list: List<AstrosPeople>?) {
+        textviewdata.text = ""
+        list?.forEach { people ->
+            textviewdata.append("${people.name} - ${people.craft} \n\n")
+        }
+    }
+    fun showLoadingIndicator() {
+        progressBarLoadIndicator.visibility = View.VISIBLE
+    }
+    fun hideLoadingIndicator() {
+        progressBarLoadIndicator.visibility = View.GONE
+    }
+    fun launchAstrosTask() {
+        val task = TaskAstros()
+        task.execute()
+    }
+    inner class TaskAstros() : AsyncTask<Void, Int, List<AstrosPeople>>() {
+        private val repository = AstrosRepository()
+        override fun onPreExecute() {
+            super.onPreExecute()
+            showLoadingIndicator()
+        }
+        override fun doInBackground(vararg params: Void?): List<AstrosPeople> {
+            return repository.loadData()
+        }
+        override fun onPostExecute(result: List<AstrosPeople>?) {
+            super.onPostExecute(result)
+            hideLoadingIndicator()
+            showData(result)
+        }
+    }
 
 }
